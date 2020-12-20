@@ -1,0 +1,281 @@
+---
+title: "SF"
+#author: "Kabirou Kanlanfeyi, jordy hounsinou"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+\newpage
+
+# I- Présentation du package SF
+
+Utilisé pour améliorer les fonctionnalités fournies par le package $SP$, le package $SF$ permet de gagner du temps en proposant plusieurs fonctions qui permettent de gagner du temps. Il intègre des fonctions qui permettent de faire non seulement de visualisation de données géographiques couplé avec d'autres librairies mais aussi des opérations géométriques, les mesures, la création d'objets mais également des fonctions de confirmation.  
+
+
+Les principales fonctionnalités sont les suivantes:  
+
+* représentation des entités simples sous forme d'enregistrements dans un data.frame ou tibble avec une liste-colonne de géométrie.
+
+* représentation native dans R des 17 types d'entités simples pour toutes les dimensions (XY, XYZ, XYM, XYZM)
+
+* servir d'interface avec GEOS pour prendre en charge les opérations géométriques, y compris le DE9-IM
+
+* servir d'interface vers GDAL, prenant en charge toutes les options de pilote, Date et POSIXct et colonnes de liste
+
+* servir d'interface avec PRØJ pour les conversions et transformations du système de référence de coordonnées
+
+* utiliser des sérialisations binaires bien connues écrites en C ++ / Rcpp pour des E / S rapides avec GDAL et GEOS
+
+* lire et écrire dans des bases de données spatiales telles que PostGIS à l'aide de DBI
+
+\newpage
+
+# II- Illustration du package $SF$  
+
+## Données utilisées
+Nous allons utiliser dans nos exemples, deux principales sources de données:  
+- La carte de l'IDF (format shp)
+- La carte de Paris qui contient la liste des différents arrondissements (format shp)
+- Les données sur les musées en île de France
+
+Pour des opérations, nous allons diviser les arrondissements de paris en 2 parties. une contenant 7 arronssements et l'autre contenant les 13 autres restants.
+
+Nous appliquerons sur elles les principales fonctions inclues dans le package *SF*
+
+Importation des données
+```{r}
+library(sf)
+library(ggplot2)
+
+#Communes de l'île de france
+IDF <- st_read("Communes_IDF.shp")
+
+ggplot() + 
+  geom_sf(data = IDF, size = 1, color = "white", fill = "black") + 
+  ggtitle("Communes de l'île de France") + 
+  #Centrer le Titre de la carte
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_sf()
+
+#Arrondissements de Paris
+AR <- st_read("arrondissements/arrondissements.shp")
+
+ggplot() + 
+  geom_sf(data = AR, size = 1, color = "white", fill = "black") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("20 Arrondissements de Paris") + 
+  coord_sf()
+
+#Musées d'île de France
+musees <- st_read("musees/liste-et-localisation-des-musees-de-france.shp")
+
+ggplot() + 
+  geom_sf(data = musees, size = 1, color = "red") +
+  ggtitle("Localisation des musées en île de France") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_sf()
+
+#Nous allons partitionner nos arrondissements de paris en deux parties pour un usage future
+part1 <-AR[1:7,]
+part2 <-AR[8:20,]
+
+```
+
+## Opérations Géométriques
+
+
+### Affichage de plusieurs données sur une carte
+
+Il est également possible d'afficher une carte avec plusieurs couches de données
+```{r}
+ggplot() + 
+  geom_sf(data = IDF, size = 1, color = "white", fill = "black") + 
+  geom_sf(data = musees, size = 1, color = "red", fill = "black") +
+  ggtitle("Localisation des musées en île de France") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_sf()
+```
+
+
+### Intersection de deux données  
+Elle permet de connaitre la zone qui fait objet d'intersection entre deux figures  
+Fonction: *st_intersection()*  
+Paramètres nécéessaires: *deux données (points, lignes, polygones)*
+```{r}
+intersec = st_intersection(part1, AR)
+
+ggplot() + 
+  geom_sf(data = intersec, size = 1, color = "white", fill = "black") + 
+  ggtitle("Intersection") + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  coord_sf()
+```
+Nous remarquons juste que la carte affichée est celle de la partie 1 qui contient les 7 arrondissements choisis.
+
+
+### Différence
+Elle nous permet de connaître la zone non commune à deux cartes  
+ 
+```{r}
+#Nous allons utiliser la carte de Paris pour une bonne visualisation
+difference <- st_difference(part1,AR)
+
+ggplot() + 
+  geom_sf(data = difference, size = 1, color = "white", fill = "black") + 
+  ggtitle("Partie 1: 7 arrondissements de paris") + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  coord_sf()
+
+#Si nous affichons part2...
+ggplot() + 
+  geom_sf(data = part2, size = 1, color = "white", fill = "black") + 
+  ggtitle("Partie 2: 13 arrondissements de Paris") + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  coord_sf()
+```
+
+
+
+### Union de deux cartes
+Il permet de faire une union de cartes en une seule.  
+Nous faisons une union des deux parties des arrondissements de Paris que nous avions découper pour retrouver la carte de base qui comporte les arrondissements de Paris.
+
+```{r}
+union <- st_union(part1,part2)
+
+#Partie 1: 7 arrondissements
+
+ggplot() + 
+  geom_sf(data = part1, size = 1, color = "white", fill = "black") + 
+  ggtitle("7 arrondissements") + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  coord_sf()
+
+#Partie 2: 13 arrondissements
+
+ggplot() + 
+  geom_sf(data = part2, size = 1, color = "white", fill = "black") + 
+  ggtitle("13 arrondissements") + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  coord_sf()
+
+#Carte de l'union des deux parties
+ggplot() + 
+  geom_sf(data = union, size = 1, color = "white", fill = "black") + 
+  ggtitle("Union des deux parties (20 arrondissements)") + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  coord_sf()
+```
+# Opératons MISC
+
+### Obtenir les coordonnées géographique d'un type de donées  
+il permet d'obtenir les coordonnées géographique qui composent une donnée géométrique.  
+```{r}
+#Cas du premier arrondissement
+coord <- st_coordinates(AR[1,])
+coord[1:10,]
+```
+
+
+## Changer le type de donnée géométrique
+Il est possible de transformer le type géométrique des données.
+```{r}
+test <- st_cast(AR, "LINESTRING")
+#Type de données d'origine (POLYGON)
+AR$geometry
+#Type de données après application de la fonction st_cast (LINESTRING)
+test$geometry
+```
+
+## Fonction de mesures géométrique  
+
+Il s'agit des fonctions qui permettent de connaitre les mesures pour un objet géométrique ou entre deux ou plusieurs de ces objets.
+Ces mesures peuvent être par exemple la distance, la surface, la longueur...
+
+
+## Surface d'un polygone
+Permet de calculer la surface d'une géométrie de polygone en fonction du système de référence de coordonnées actuel. La mesure est en m^2^  
+```{r}
+surface <- (st_area(AR))
+paste("La surface de l'arrondissement " ,AR$l_aroff, " est ", surface, " m^2")
+```
+Nous remarquons que les résultats sont appromatifs comparés aux résultats fournis dans le dataset.
+
+
+## Connaitre la distance entre deux points
+Pour cette partie nous allons utiliser les données relatives aux musées pour trouver les
+
+```{r}
+#Effectuons le même test sur les données de musées.
+
+dis <- st_distance(musees[1,], musees[2,])
+paste("La distance entre ",musees[1,]$nom_du_muse , " ET ", musees[2,]$nom_du_muse, " EST ", dis, " mètres")
+```
+Il est à noter que la distance se mesure par défaut en *dégré* sous le package SF
+
+
+## Fonction de Vérification
+Il s'agit des fonctions qui permettent de vérifier la véracité d'une hypothèse. Ils peuevent être aussi être considérés comme des fonctions de logique.
+
+### Vérifier si une figure contient une autre
+Souvent utilisée pour vérifier si un point est inclus dans un polygone.
+
+```{r}
+#Nous vérifions si les 7 premiers arrondissements de paris sont dans Paris (logique quand même)...
+cont <- st_contains(part1, AR)
+cont
+```
+
+Les résultats nous montre que tous les éléments de la partie1 (7 premiers arrondissements) sont inclus avec leurs correspondances d'où la confirmation de notre hypothèse. Notons que pour les partie qui n'auraient pas été inclues, nous aurions eu des résultats en *empty*  
+Exemple:
+```{r}
+#Nous vérifions si les 7 premiers arrondissements de Paris sont inclus dans les 13 derniers
+cont2 <- st_contains(part1, part2)
+cont2
+```
+
+### Vérifier si deux figures se partagent la même géométrie
+```{r}
+confirm <- st_equals(part1, AR)
+confirm
+```
+ Nous obtenons un résultat positif.
+ 
+### Vérifier une intersection entre deux figures
+Nous notons que cette fonction est différente de la fonction *intersection* qui retourne une figure géométrique que nous avons vu un peu plus haut dans le document.
+ 
+```{r}
+inter <- st_intersects(AR, IDF)
+inter
+```
+Nous remarquons que la liste nous montre les différents arrondissements qui s'intercèdent avec les communes de l'île de France.
+
+### Vérifier si un Polygone est entièrement inclus dans un autre
+
+Nous considérons deux cas:
+```{r}
+couvre1<- st_covered_by(part1, AR)
+couvre2<- st_covered_by(part1, part2)
+#Cas où il y a une couverture totale
+couvre1
+#Cas où nous n'avons pas de couverture
+couvre2
+```
+
+\newpage
+
+# CheatSheet de SF:
+Ceci est une image de la synthèse des fonctions principales du package $SF$
+
+![CheatSheet du package SF.](SF cheatsheet.png)
+
+
+
+# Références
+- https://www.data.gouv.fr/fr/datasets/liste-des-musees-franciliens-idf/#_  
+- https://stackoverflow.com/questions/40675778/center-plot-title-in-ggplot2  
+- https://r-spatial.github.io/sf/reference/st_as_sf.html  
+- https://github.com/rstudio/cheatsheets/blob/master/sf.pdf  
+- https://www.data.gouv.fr/fr/datasets/arrondissements-1/#_  
+- https://www.data.gouv.fr/fr/datasets/apur-communes-ile-de-france/  
