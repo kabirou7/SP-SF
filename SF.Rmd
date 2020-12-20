@@ -1,12 +1,12 @@
 ---
-title: "SF"
-#author: "Kabirou Kanlanfeyi, jordy hounsinou"
+title: "Package SF"
+author: "Kabirou Kanlanfeyi, Jordy Hounsinou"
+date: "20/12/2020"
 output:
   pdf_document: default
   html_document: default
 ---
 
-\newpage
 
 # I- Présentation du package SF
 
@@ -112,30 +112,6 @@ ggplot() +
   coord_sf()
 ```
 Nous remarquons juste que la carte affichée est celle de la partie 1 qui contient les 7 arrondissements choisis.
-
-
-### Différence
-Elle nous permet de connaître la zone non commune à deux cartes  
- 
-```{r}
-#Nous allons utiliser la carte de Paris pour une bonne visualisation
-difference <- st_difference(part1,AR)
-
-ggplot() + 
-  geom_sf(data = difference, size = 1, color = "white", fill = "black") + 
-  ggtitle("Partie 1: 7 arrondissements de paris") + 
-  theme(plot.title = element_text(hjust = 0.5))+
-  coord_sf()
-
-#Si nous affichons part2...
-ggplot() + 
-  geom_sf(data = part2, size = 1, color = "white", fill = "black") + 
-  ggtitle("Partie 2: 13 arrondissements de Paris") + 
-  theme(plot.title = element_text(hjust = 0.5))+
-  coord_sf()
-```
-
-
 
 ### Union de deux cartes
 Il permet de faire une union de cartes en une seule.  
@@ -269,8 +245,7 @@ couvre2
 Ceci est une image de la synthèse des fonctions principales du package $SF$
 
 ![CheatSheet du package SF.](SF cheatsheet.png)
-
-
+\newpage
 
 # Références
 - https://www.data.gouv.fr/fr/datasets/liste-des-musees-franciliens-idf/#_  
