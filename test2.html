@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+
+
+.defileParent {
+	display: block;
+	margin: 3em auto;
+	overflow: hidden;
+	position: relative;
+	table-layout: fixed;
+	width: 700px;
+}
+.defile {
+	display:block;
+	-webkit-animation:linear marqueelike 15s infinite ;
+	-moz-animation:linear marqueelike 15s infinite ;
+	-o-animation:linear marqueelike 15s infinite ;
+	-ms-animation:linear marqueelike 15s infinite ;
+	animation:linear marqueelike 15s infinite ;
+	margin-left:-100%;
+	padding:0 5px;
+	text-align:right;
+	height:25px;
+}
+
+
+.defile:after {
+	content:attr(data-text);
+	position:absolute;
+	white-space:nowrap;
+	padding-left:10px;
+}
+
+@-webkit-keyframes marqueelike {
+	0%, 100% {margin-left:100%;}
+	99.99% {margin-left:-100%;}
+ }
+@-moz-keyframes marqueelike {
+	0%, 100% {margin-left:100%;}
+	99.99% {margin-left:-100%;}
+ }
+@-o-keyframes marqueelike {
+	0%, 100% {margin-left:100%;}
+	99.99% {margin-left:-100%;}
+ }
+@-ms-keyframes marqueelike {
+	0%, 100% {margin-left:100%;}
+	99.99% {margin-left:-100%;}
+ }
+@keyframes marqueelike {
+	0%, 100% {margin-left:100%;}
+	99.99% {margin-left:-100%;}
+ }
+
+@media only screen and (max-width: 1900px) {
+.defileParent {
+	display: block;
+	margin: 3em auto;
+	overflow: hidden;
+	position: relative;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.defile {
+	display:block;
+	-webkit-animation:linear marqueelike 15s infinite ;
+	-moz-animation:linear marqueelike 15s infinite ;
+	-o-animation:linear marqueelike 15s infinite ;
+	-ms-animation:linear marqueelike 15s infinite ;
+	animation:linear marqueelike 15s infinite ;
+	margin-left:-100%;
+	padding:0 5px;
+	text-align:left;
+	height:25px;
+}
+}
+ html { overflow:hidden; }
+
+</style>  </head>
+  <body style="margin: 0px;width: 100%;height: 34px;">
+ <div class="defileParent" style="margin: 0px;width: 100%;height: 34px;">
+ 	<span class="defile" data-text=" texte d�roulant " style="margin: 0px;height: 34px;">
+    <object id="cequejeveux" data="./test.html" type="text/html" style="margin: 0px;width: 100%;height: 34px;overflow: hidden;"> 
+    </object>
+  </span>
+</div>
+
+  </body>
+</html>
